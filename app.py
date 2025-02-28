@@ -246,7 +246,7 @@ def admin_dashboard():
     with col2:
         st.markdown('<div class="profile-container">', unsafe_allow_html=True)
         try:
-            st.image(st.session_state.user["profile_pic_url"], width=80, clamp=True, output_format="auto", channels="RGB", use_column_width=False)
+            st.image(st.session_state.user["profile_pic_url"], width=80, clamp=True, output_format="auto", channels="RGB", use_container_width=False)
         except:
             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=80)
         
@@ -414,7 +414,7 @@ def manage_employees():
                     
                     with col1:
                         try:
-                            st.image(employee[3], width=100, use_column_width=False)
+                            st.image(employee[3], width=100, use_container_width=False)
                         except:
                             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=100)
                     
