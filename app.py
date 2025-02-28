@@ -70,11 +70,11 @@ st.markdown("""
     .login-container {
         max-width: 400px;
         background-image: url("https://i.ibb.co/s9b3rSvg/3a02fb88ce57.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
         margin: 0 auto;
-        padding: 4rem;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        padding: 1rem;
     }
     
     .login-header {
