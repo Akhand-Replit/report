@@ -411,7 +411,7 @@ def manage_employees():
                     
                     with col1:
                         try:
-                            st.image(employee[3], width=100, use_container_width=False)
+                            st.image(employee[3], width=100, use_column_width=False)
                         except:
                             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=100)
                     
@@ -1180,7 +1180,7 @@ def view_my_reports():
                 del st.session_state.edit_report
                 st.rerun()
 
-# View My Tasks
+# View My Tasks function - separate from profile management
 def view_my_tasks():
     st.markdown('<h2 class="sub-header">My Tasks</h2>', unsafe_allow_html=True)
     
@@ -1247,7 +1247,7 @@ def view_my_tasks():
                         conn.commit()
                     st.success("Task marked as completed")
                     st.rerun()
-      
+        
         # Display completed tasks
         if completed_tasks and status_filter != "Pending":
             st.markdown('<h3 class="sub-header">Completed Tasks</h3>', unsafe_allow_html=True)
@@ -1267,8 +1267,7 @@ def view_my_tasks():
                     </div>
                 </div>
                 ''', unsafe_allow_html=True)
-
-"""    
+    
     # Fetch current employee data
     with engine.connect() as conn:
         result = conn.execute(text('''
@@ -1296,7 +1295,7 @@ def view_my_tasks():
     with col2:
         st.markdown(f"<p><strong>Username:</strong> {username}</p>", unsafe_allow_html=True)
         st.info("Username cannot be changed as it is used for login purposes.")
-   
+    
     # Form for updating profile
     with st.form("update_profile_form"):
         st.subheader("Update Your Information")
@@ -1374,7 +1373,7 @@ def view_my_tasks():
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
                 st.rerun()
-"""    
+    
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
     status_filter = st.selectbox("Show", status_options)
