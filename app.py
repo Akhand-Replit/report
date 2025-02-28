@@ -229,7 +229,7 @@ def display_login():
     
     st.markdown('</div>', unsafe_allow_html=True)
 
-# Logout function
+    # Logout function
 def logout():
     st.session_state.pop("user", None)
     st.rerun()
@@ -1185,6 +1185,88 @@ def view_my_tasks():
     st.markdown('<h2 class="sub-header">My Tasks</h2>', unsafe_allow_html=True)
     
     employee_id = st.session_state.user["id"]
+    
+    # Task status filter
+    status_options = ["All Tasks", "Pending", "Completed"]
+    status_filter = st.selectbox("Show", status_options)
+    
+    # Build query based on filter
+    query = '''
+    SELECT id, task_description, due_date, is_completed, created_at
+    FROM tasks
+    WHERE employee_id = :employee_id
+    '''
+    
+    params = {'employee_id': employee_id}
+    
+    if status_filter == "Pending":
+        query += ' AND is_completed = FALSE'
+    elif status_filter == "Completed":
+        query += ' AND is_completed = TRUE'
+    
+    query += ' ORDER BY due_date ASC NULLS LAST, created_at DESC'
+    
+    # Fetch tasks
+    with engine.connect() as conn:
+        result = conn.execute(text(query), params)
+        tasks = result.fetchall()
+    
+    # Display tasks
+    if not tasks:
+        st.info("No tasks found")
+    else:
+        st.write(f"Found {len(tasks)} tasks")
+        
+        # Separate into pending and completed for better organization
+        pending_tasks = [task for task in tasks if not task[3]]
+        completed_tasks = [task for task in tasks if task[3]]
+        
+        # Display pending tasks first
+        if pending_tasks and status_filter != "Completed":
+            st.markdown('<h3 class="sub-header">Pending Tasks</h3>', unsafe_allow_html=True)
+            
+            for task in pending_tasks:
+                task_id = task[0]
+                task_description = task[1]
+                due_date = task[2].strftime('%d %b, %Y') if task[2] else "No due date"
+                created_at = task[4].strftime('%d %b, %Y')
+                
+                st.markdown(f'''
+                <div class="task-item">
+                    <strong>Due: {due_date}</strong>
+                    <p>{task_description}</p>
+                    <div style="text-align: right; color: #777; font-size: 0.8rem;">
+                        Created: {created_at}
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+                
+                if st.button(f"Mark as Completed", key=f"complete_{task_id}"):
+                    with engine.connect() as conn:
+                        conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
+                        conn.commit()
+                    st.success("Task marked as completed")
+                    st.rerun()
+        
+        # Display completed tasks
+        if completed_tasks and status_filter != "Pending":
+            st.markdown('<h3 class="sub-header">Completed Tasks</h3>', unsafe_allow_html=True)
+            
+            for task in completed_tasks:
+                task_id = task[0]
+                task_description = task[1]
+                due_date = task[2].strftime('%d %b, %Y') if task[2] else "No due date"
+                created_at = task[4].strftime('%d %b, %Y')
+                
+                st.markdown(f'''
+                <div class="task-item completed">
+                    <strong>Due: {due_date}</strong>
+                    <p>{task_description}</p>
+                    <div style="text-align: right; color: #777; font-size: 0.8rem;">
+                        Created: {created_at}
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
     
     # Fetch current employee data
     with engine.connect() as conn:
