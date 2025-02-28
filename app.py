@@ -197,7 +197,7 @@ def create_admin_user():
 
 # Authentication function
 def authenticate(username, password):
-    if username == st.secrets.get("admin_username") and password == st.secrets.get("admin_password"):
+    if username == st.secrets("admin_username") and password == st.secrets("admin_password"):
         return {"id": 1, "username": username, "full_name": "Administrator", "is_admin": True, "profile_pic_url": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"}
     
     with engine.connect() as conn:
