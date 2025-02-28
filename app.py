@@ -18,7 +18,7 @@ from reportlab.lib import colors
 st.set_page_config(
     page_title="Employee Management System",
     page_icon="👥",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded"
 )
 
