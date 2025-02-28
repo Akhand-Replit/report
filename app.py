@@ -1388,7 +1388,7 @@ def view_my_tasks():
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
     status_filter = st.selectbox("Show", status_options)
-"""    
+   
     # Build query based on filter
     query = '''
     SELECT id, task_description, due_date, is_completed, created_at
@@ -1466,7 +1466,7 @@ def view_my_tasks():
                     </div>
                 </div>
                 ''', unsafe_allow_html=True)
-
+""" 
 # Edit My Profile
 def edit_my_profile():
     st.markdown('<h2 class="sub-header">My Profile</h2>', unsafe_allow_html=True)
