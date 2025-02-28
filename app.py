@@ -190,8 +190,8 @@ def create_admin_user():
         VALUES (1, :username, :password, 'Administrator', 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y', TRUE)
         ON CONFLICT (id) DO NOTHING
         '''), {
-            'username': st.secrets.get("admin_username"),
-            'password': st.secrets.get("admin_password")
+            'username': st.secrets.get("admin_username", "admin"),
+            'password': st.secrets.get("admin_password", "admin123")
         })
         conn.commit()
 
