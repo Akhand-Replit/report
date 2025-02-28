@@ -223,7 +223,7 @@ def display_login():
         user = authenticate(username, password)
         if user:
             st.session_state.user = user
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Invalid username or password")
     
@@ -232,7 +232,7 @@ def display_login():
 # Logout function
 def logout():
     st.session_state.pop("user", None)
-    st.experimental_rerun()
+    st.rerun()
 
 # Admin Dashboard
 def admin_dashboard():
@@ -429,14 +429,14 @@ def manage_employees():
                                         conn.execute(text('UPDATE employees SET is_active = FALSE WHERE id = :id'), {'id': employee[0]})
                                         conn.commit()
                                     st.success(f"Deactivated employee: {employee[2]}")
-                                    st.experimental_rerun()
+                                    st.rerun()
                             else:  # If inactive
                                 if st.button(f"Activate", key=f"activate_{employee[0]}"):
                                     with engine.connect() as conn:
                                         conn.execute(text('UPDATE employees SET is_active = TRUE WHERE id = :id'), {'id': employee[0]})
                                         conn.commit()
                                     st.success(f"Activated employee: {employee[2]}")
-                                    st.experimental_rerun()
+                                    st.rerun()
                         
                         with col2:
                             if st.button(f"Reset Password", key=f"reset_{employee[0]}"):
@@ -779,14 +779,14 @@ def manage_tasks():
                                 conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task marked as completed")
-                            st.experimental_rerun()
+                            st.rerun()
                     else:
                         if st.button(f"Reopen Task", key=f"reopen_{task_id}"):
                             with engine.connect() as conn:
                                 conn.execute(text('UPDATE tasks SET is_completed = FALSE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task reopened")
-                            st.experimental_rerun()
+                            st.rerun()
                 
                 with col2:
                     if st.button(f"Delete Task", key=f"delete_{task_id}"):
@@ -794,7 +794,7 @@ def manage_tasks():
                             conn.execute(text('DELETE FROM tasks WHERE id = :id'), {'id': task_id})
                             conn.commit()
                         st.success("Task deleted")
-                        st.experimental_rerun()
+                        st.rerun()
     
     with tab2:
         # Form to assign new task
@@ -973,7 +973,7 @@ def display_employee_dashboard():
         
         if st.button("Submit New Report", key="quick_submit"):
             st.session_state["selected_tab"] = "Submit Report"
-            st.experimental_rerun()
+            st.rerun()
     
     with col2:
         st.markdown('<h3 class="sub-header">My Pending Tasks</h3>', unsafe_allow_html=True)
@@ -992,7 +992,7 @@ def display_employee_dashboard():
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task[0]})
                         conn.commit()
                     st.success("Task marked as completed")
-                    st.experimental_rerun()
+                    st.rerun()
         else:
             st.info("No pending tasks")
 
@@ -1138,7 +1138,7 @@ def view_my_reports():
                                 'date': report_date,
                                 'text': report_text
                             }
-                            st.experimental_rerun()
+                            st.rerun()
         
     # Edit report if selected
     if hasattr(st.session_state, 'edit_report'):
@@ -1172,13 +1172,13 @@ def view_my_reports():
                             conn.commit()
                         st.success("Report updated successfully")
                         del st.session_state.edit_report
-                        st.experimental_rerun()
+                        st.rerun()
                     except Exception as e:
                         st.error(f"Error updating report: {e}")
             
             if cancel:
                 del st.session_state.edit_report
-                st.experimental_rerun()
+                st.rerun()
 
 # View My Tasks
 def view_my_tasks():
@@ -1290,7 +1290,7 @@ def view_my_tasks():
             
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
-                st.experimental_rerun()
+                st.rerun()
     
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
@@ -1352,7 +1352,7 @@ def view_my_tasks():
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                         conn.commit()
                     st.success("Task marked as completed")
-                    st.experimental_rerun()
+                    st.rerun()
         
         # Display completed tasks
         if completed_tasks and status_filter != "Pending":
@@ -1484,7 +1484,7 @@ def edit_my_profile():
             
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
-                st.experimental_rerun()
+                st.rerun()
 
 # Main function
 def main():
