@@ -1295,7 +1295,7 @@ def view_my_tasks():
     with col2:
         st.markdown(f"<p><strong>Username:</strong> {username}</p>", unsafe_allow_html=True)
         st.info("Username cannot be changed as it is used for login purposes.")
-    
+"""    
     # Form for updating profile
     with st.form("update_profile_form"):
         st.subheader("Update Your Information")
@@ -1455,7 +1455,7 @@ def view_my_tasks():
                     </div>
                 </div>
                 ''', unsafe_allow_html=True)
-
+"""
 # Edit My Profile
 def edit_my_profile():
     st.markdown('<h2 class="sub-header">My Profile</h2>', unsafe_allow_html=True)
