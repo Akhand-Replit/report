@@ -15,7 +15,7 @@ from reportlab.lib import colors
 
 # Page config
 st.set_page_config(
-    page_title="Employee Management System",
+    page_title="Akhand Office Report",
     page_icon="👥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -190,14 +190,14 @@ def create_admin_user():
         VALUES (1, :username, :password, 'Administrator', 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y', TRUE)
         ON CONFLICT (id) DO NOTHING
         '''), {
-            'username': st.secrets.get("admin_username", "admin"),
-            'password': st.secrets.get("admin_password", "admin123")
+            'username': st.secrets.get("admin_username"),
+            'password': st.secrets.get("admin_password")
         })
         conn.commit()
 
 # Authentication function
 def authenticate(username, password):
-    if username == st.secrets.get("admin_username", "admin") and password == st.secrets.get("admin_password", "admin123"):
+    if username == st.secrets.get("admin_username") and password == st.secrets.get("admin_password"):
         return {"id": 1, "username": username, "full_name": "Administrator", "is_admin": True, "profile_pic_url": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"}
     
     with engine.connect() as conn:
