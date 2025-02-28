@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
+import time
 from sqlalchemy import create_engine, text
 import io
 import base64
@@ -222,7 +223,7 @@ def display_login():
         user = authenticate(username, password)
         if user:
             st.session_state.user = user
-            st.rerun()
+            st.experimental_rerun()
         else:
             st.error("Invalid username or password")
     
@@ -231,7 +232,7 @@ def display_login():
 # Logout function
 def logout():
     st.session_state.pop("user", None)
-    st.rerun()
+    st.experimental_rerun()
 
 # Admin Dashboard
 def admin_dashboard():
@@ -410,7 +411,7 @@ def manage_employees():
                     
                     with col1:
                         try:
-                            st.image(employee[3], width=100, use_container_width=False)
+                            st.image(employee[3], width=100, use_column_width=False)
                         except:
                             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=100)
                     
@@ -428,14 +429,14 @@ def manage_employees():
                                         conn.execute(text('UPDATE employees SET is_active = FALSE WHERE id = :id'), {'id': employee[0]})
                                         conn.commit()
                                     st.success(f"Deactivated employee: {employee[2]}")
-                                    st.rerun()
+                                    st.experimental_rerun()
                             else:  # If inactive
                                 if st.button(f"Activate", key=f"activate_{employee[0]}"):
                                     with engine.connect() as conn:
                                         conn.execute(text('UPDATE employees SET is_active = TRUE WHERE id = :id'), {'id': employee[0]})
                                         conn.commit()
                                     st.success(f"Activated employee: {employee[2]}")
-                                    st.rerun()
+                                    st.experimental_rerun()
                         
                         with col2:
                             if st.button(f"Reset Password", key=f"reset_{employee[0]}"):
@@ -778,14 +779,14 @@ def manage_tasks():
                                 conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task marked as completed")
-                            st.rerun()
+                            st.experimental_rerun()
                     else:
                         if st.button(f"Reopen Task", key=f"reopen_{task_id}"):
                             with engine.connect() as conn:
                                 conn.execute(text('UPDATE tasks SET is_completed = FALSE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task reopened")
-                            st.rerun()
+                            st.experimental_rerun()
                 
                 with col2:
                     if st.button(f"Delete Task", key=f"delete_{task_id}"):
@@ -793,7 +794,7 @@ def manage_tasks():
                             conn.execute(text('DELETE FROM tasks WHERE id = :id'), {'id': task_id})
                             conn.commit()
                         st.success("Task deleted")
-                        st.rerun()
+                        st.experimental_rerun()
     
     with tab2:
         # Form to assign new task
@@ -851,8 +852,8 @@ def employee_dashboard():
     # Navigation
     selected = option_menu(
         menu_title=None,
-        options=["Dashboard", "Submit Report", "My Reports", "My Tasks", "Logout"],
-        icons=["house", "pencil", "journal-text", "list-check", "box-arrow-right"],
+        options=["Dashboard", "Submit Report", "My Reports", "My Tasks", "My Profile", "Logout"],
+        icons=["house", "pencil", "journal-text", "list-check", "person-circle", "box-arrow-right"],
         menu_icon="cast",
         default_index=0,
         orientation="horizontal",
@@ -872,6 +873,8 @@ def employee_dashboard():
         view_my_reports()
     elif selected == "My Tasks":
         view_my_tasks()
+    elif selected == "My Profile":
+        edit_my_profile()
     elif selected == "Logout":
         logout()
 
@@ -970,7 +973,7 @@ def display_employee_dashboard():
         
         if st.button("Submit New Report", key="quick_submit"):
             st.session_state["selected_tab"] = "Submit Report"
-            st.rerun()
+            st.experimental_rerun()
     
     with col2:
         st.markdown('<h3 class="sub-header">My Pending Tasks</h3>', unsafe_allow_html=True)
@@ -989,7 +992,7 @@ def display_employee_dashboard():
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task[0]})
                         conn.commit()
                     st.success("Task marked as completed")
-                    st.rerun()
+                    st.experimental_rerun()
         else:
             st.info("No pending tasks")
 
@@ -1135,7 +1138,7 @@ def view_my_reports():
                                 'date': report_date,
                                 'text': report_text
                             }
-                            st.rerun()
+                            st.experimental_rerun()
         
     # Edit report if selected
     if hasattr(st.session_state, 'edit_report'):
@@ -1169,19 +1172,125 @@ def view_my_reports():
                             conn.commit()
                         st.success("Report updated successfully")
                         del st.session_state.edit_report
-                        st.rerun()
+                        st.experimental_rerun()
                     except Exception as e:
                         st.error(f"Error updating report: {e}")
             
             if cancel:
                 del st.session_state.edit_report
-                st.rerun()
+                st.experimental_rerun()
 
 # View My Tasks
 def view_my_tasks():
     st.markdown('<h2 class="sub-header">My Tasks</h2>', unsafe_allow_html=True)
     
     employee_id = st.session_state.user["id"]
+    
+    # Fetch current employee data
+    with engine.connect() as conn:
+        result = conn.execute(text('''
+        SELECT username, full_name, profile_pic_url
+        FROM employees
+        WHERE id = :employee_id
+        '''), {'employee_id': employee_id})
+        employee_data = result.fetchone()
+    
+    if not employee_data:
+        st.error("Could not retrieve your profile information. Please try again later.")
+        return
+    
+    username, current_full_name, current_pic_url = employee_data
+    
+    # Display current profile picture
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.markdown("<p>Current Profile Picture:</p>", unsafe_allow_html=True)
+        try:
+            st.image(current_pic_url, width=150, use_container_width=False)
+        except:
+            st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=150, use_container_width=False)
+    
+    with col2:
+        st.markdown(f"<p><strong>Username:</strong> {username}</p>", unsafe_allow_html=True)
+        st.info("Username cannot be changed as it is used for login purposes.")
+    
+    # Form for updating profile
+    with st.form("update_profile_form"):
+        st.subheader("Update Your Information")
+        
+        # Full name update
+        new_full_name = st.text_input("Full Name", value=current_full_name)
+        
+        # Profile picture URL update
+        new_profile_pic_url = st.text_input("Profile Picture URL", value=current_pic_url or "")
+        
+        # Password update section
+        st.subheader("Change Password")
+        current_password = st.text_input("Current Password", type="password")
+        new_password = st.text_input("New Password", type="password")
+        confirm_password = st.text_input("Confirm New Password", type="password")
+        
+        submitted = st.form_submit_button("Update Profile")
+        if submitted:
+            updates_made = False
+            
+            # Check if any changes were made to name or picture URL
+            if new_full_name != current_full_name or new_profile_pic_url != current_pic_url:
+                with engine.connect() as conn:
+                    conn.execute(text('''
+                    UPDATE employees
+                    SET full_name = :full_name, profile_pic_url = :profile_pic_url
+                    WHERE id = :employee_id
+                    '''), {
+                        'full_name': new_full_name,
+                        'profile_pic_url': new_profile_pic_url,
+                        'employee_id': employee_id
+                    })
+                    conn.commit()
+                
+                # Update session state with new values
+                st.session_state.user["full_name"] = new_full_name
+                st.session_state.user["profile_pic_url"] = new_profile_pic_url
+                
+                updates_made = True
+                st.success("Profile information updated successfully.")
+            
+            # Handle password change if attempted
+            if current_password or new_password or confirm_password:
+                if not current_password:
+                    st.error("Please enter your current password to change it.")
+                elif not new_password:
+                    st.error("Please enter a new password.")
+                elif new_password != confirm_password:
+                    st.error("New passwords do not match.")
+                else:
+                    # Verify current password
+                    with engine.connect() as conn:
+                        result = conn.execute(text('''
+                        SELECT COUNT(*)
+                        FROM employees
+                        WHERE id = :employee_id AND password = :current_password
+                        '''), {'employee_id': employee_id, 'current_password': current_password})
+                        is_valid = result.fetchone()[0] > 0
+                    
+                    if not is_valid:
+                        st.error("Current password is incorrect.")
+                    else:
+                        # Update password
+                        with engine.connect() as conn:
+                            conn.execute(text('''
+                            UPDATE employees
+                            SET password = :new_password
+                            WHERE id = :employee_id
+                            '''), {'new_password': new_password, 'employee_id': employee_id})
+                            conn.commit()
+                        
+                        updates_made = True
+                        st.success("Password updated successfully.")
+            
+            if updates_made:
+                time.sleep(1)  # Give the user time to read the success message
+                st.experimental_rerun()
     
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
@@ -1243,7 +1352,7 @@ def view_my_tasks():
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                         conn.commit()
                     st.success("Task marked as completed")
-                    st.rerun()
+                    st.experimental_rerun()
         
         # Display completed tasks
         if completed_tasks and status_filter != "Pending":
@@ -1264,6 +1373,118 @@ def view_my_tasks():
                     </div>
                 </div>
                 ''', unsafe_allow_html=True)
+
+# Edit My Profile
+def edit_my_profile():
+    st.markdown('<h2 class="sub-header">My Profile</h2>', unsafe_allow_html=True)
+    
+    employee_id = st.session_state.user["id"]
+    
+    # Fetch current employee data
+    with engine.connect() as conn:
+        result = conn.execute(text('''
+        SELECT username, full_name, profile_pic_url
+        FROM employees
+        WHERE id = :employee_id
+        '''), {'employee_id': employee_id})
+        employee_data = result.fetchone()
+    
+    if not employee_data:
+        st.error("Could not retrieve your profile information. Please try again later.")
+        return
+    
+    username, current_full_name, current_pic_url = employee_data
+    
+    # Display current profile picture
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        st.markdown("<p>Current Profile Picture:</p>", unsafe_allow_html=True)
+        try:
+            st.image(current_pic_url, width=150, use_container_width=False)
+        except:
+            st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=150, use_container_width=False)
+    
+    with col2:
+        st.markdown(f"<p><strong>Username:</strong> {username}</p>", unsafe_allow_html=True)
+        st.info("Username cannot be changed as it is used for login purposes.")
+    
+    # Form for updating profile
+    with st.form("update_profile_form"):
+        st.subheader("Update Your Information")
+        
+        # Full name update
+        new_full_name = st.text_input("Full Name", value=current_full_name)
+        
+        # Profile picture URL update
+        new_profile_pic_url = st.text_input("Profile Picture URL", value=current_pic_url or "")
+        
+        # Password update section
+        st.subheader("Change Password")
+        current_password = st.text_input("Current Password", type="password")
+        new_password = st.text_input("New Password", type="password")
+        confirm_password = st.text_input("Confirm New Password", type="password")
+        
+        submitted = st.form_submit_button("Update Profile")
+        if submitted:
+            updates_made = False
+            
+            # Check if any changes were made to name or picture URL
+            if new_full_name != current_full_name or new_profile_pic_url != current_pic_url:
+                with engine.connect() as conn:
+                    conn.execute(text('''
+                    UPDATE employees
+                    SET full_name = :full_name, profile_pic_url = :profile_pic_url
+                    WHERE id = :employee_id
+                    '''), {
+                        'full_name': new_full_name,
+                        'profile_pic_url': new_profile_pic_url,
+                        'employee_id': employee_id
+                    })
+                    conn.commit()
+                
+                # Update session state with new values
+                st.session_state.user["full_name"] = new_full_name
+                st.session_state.user["profile_pic_url"] = new_profile_pic_url
+                
+                updates_made = True
+                st.success("Profile information updated successfully.")
+            
+            # Handle password change if attempted
+            if current_password or new_password or confirm_password:
+                if not current_password:
+                    st.error("Please enter your current password to change it.")
+                elif not new_password:
+                    st.error("Please enter a new password.")
+                elif new_password != confirm_password:
+                    st.error("New passwords do not match.")
+                else:
+                    # Verify current password
+                    with engine.connect() as conn:
+                        result = conn.execute(text('''
+                        SELECT COUNT(*)
+                        FROM employees
+                        WHERE id = :employee_id AND password = :current_password
+                        '''), {'employee_id': employee_id, 'current_password': current_password})
+                        is_valid = result.fetchone()[0] > 0
+                    
+                    if not is_valid:
+                        st.error("Current password is incorrect.")
+                    else:
+                        # Update password
+                        with engine.connect() as conn:
+                            conn.execute(text('''
+                            UPDATE employees
+                            SET password = :new_password
+                            WHERE id = :employee_id
+                            '''), {'new_password': new_password, 'employee_id': employee_id})
+                            conn.commit()
+                        
+                        updates_made = True
+                        st.success("Password updated successfully.")
+            
+            if updates_made:
+                time.sleep(1)  # Give the user time to read the success message
+                st.experimental_rerun()
 
 # Main function
 def main():
