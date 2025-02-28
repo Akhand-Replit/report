@@ -503,7 +503,7 @@ def view_all_reports():
             employees = result.fetchall()
         
         employee_options = ["All Employees"] + [emp[1] for emp in employees]
-        employee_filter = st.selectbox("Select Employee", employee_options)
+        employee_filter = st.selectbox("Select Employee", employee_options, key="reports_employee_filter")
     
     with col2:
         # Date range filter
@@ -516,7 +516,7 @@ def view_all_reports():
             "This Year",
             "Custom Range"
         ]
-        date_filter = st.selectbox("Date Range", date_options)
+        date_filter = st.selectbox("Date Range", date_options, key="reports_date_filter")
     
     with col3:
         # Custom date range if selected
@@ -713,7 +713,7 @@ def manage_tasks():
         with col2:
             # Status filter
             status_options = ["All Tasks", "Pending", "Completed"]
-            status_filter = st.selectbox("Task Status", status_options)
+            status_filter = st.selectbox("Task Status", status_options, key="admin_task_status_filter")
         
         # Build query based on filters
         query = '''
@@ -1068,7 +1068,7 @@ def view_my_reports():
             "This Year",
             "Custom Range"
         ]
-        date_filter = st.selectbox("Date Range", date_options)
+        date_filter = st.selectbox("Date Range", date_options, key="employee_reports_date_filter")
     
     with col2:
         # Custom date range if selected
@@ -1188,7 +1188,7 @@ def view_my_tasks():
     
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
-    status_filter = st.selectbox("Show", status_options)
+    status_filter = st.selectbox("Show", status_options, key="employee_task_status_filter")
     
     # Build query based on filter
     query = '''
