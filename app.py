@@ -1247,7 +1247,7 @@ def view_my_tasks():
                         conn.commit()
                     st.success("Task marked as completed")
                     st.rerun()
-        
+"""        
         # Display completed tasks
         if completed_tasks and status_filter != "Pending":
             st.markdown('<h3 class="sub-header">Completed Tasks</h3>', unsafe_allow_html=True)
@@ -1267,6 +1267,7 @@ def view_my_tasks():
                     </div>
                 </div>
                 ''', unsafe_allow_html=True)
+"""
 """    
     # Fetch current employee data
     with engine.connect() as conn:
@@ -1373,7 +1374,7 @@ def view_my_tasks():
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
                 st.rerun()
-    
+"""    
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
     status_filter = st.selectbox("Show", status_options)
@@ -1455,7 +1456,7 @@ def view_my_tasks():
                     </div>
                 </div>
                 ''', unsafe_allow_html=True)
-"""
+
 # Edit My Profile
 def edit_my_profile():
     st.markdown('<h2 class="sub-header">My Profile</h2>', unsafe_allow_html=True)
