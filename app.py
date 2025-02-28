@@ -412,7 +412,7 @@ def manage_employees():
                     
                     with col1:
                         try:
-                            st.image(employee[3], width=100, use_column_width=False)
+                            st.image(employee[3], width=100, use_container_width=False)
                         except:
                             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=100)
                     
