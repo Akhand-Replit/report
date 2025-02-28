@@ -779,14 +779,14 @@ def manage_tasks():
                                 conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task marked as completed")
-                            st.rerun()
+                            st.experimental_rerun()
                     else:
                         if st.button(f"Reopen Task", key=f"reopen_{task_id}"):
                             with engine.connect() as conn:
                                 conn.execute(text('UPDATE tasks SET is_completed = FALSE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task reopened")
-                            st.rerun()
+                            st.experimental_rerun()
                 
                 with col2:
                     if st.button(f"Delete Task", key=f"delete_{task_id}"):
@@ -794,7 +794,7 @@ def manage_tasks():
                             conn.execute(text('DELETE FROM tasks WHERE id = :id'), {'id': task_id})
                             conn.commit()
                         st.success("Task deleted")
-                        st.rerun()
+                        st.experimental_rerun()
     
     with tab2:
         # Form to assign new task
@@ -865,6 +865,15 @@ def employee_dashboard():
         }
     )
     
+    # Clear any previous content to avoid overlap between sections
+    if "current_section" in st.session_state and st.session_state.current_section != selected:
+        # If switching sections, clear the previous section
+        st.session_state.current_section = selected
+    else:
+        # First time setting the section
+        st.session_state.current_section = selected
+    
+    # Display the selected section
     if selected == "Dashboard":
         display_employee_dashboard()
     elif selected == "Submit Report":
@@ -987,7 +996,7 @@ def display_employee_dashboard():
                 </div>
                 ''', unsafe_allow_html=True)
                 
-                if st.button(f"Mark as Completed", key=f"quick_complete_{task[0]}"):
+                if st.button(f"Mark as Completed", key=f"quick_complete_employee_{task[0]}_{task[2].strftime('%Y%m%d') if task[2] else 'nodate'}"):
                     with engine.connect() as conn:
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task[0]})
                         conn.commit()
@@ -1138,7 +1147,7 @@ def view_my_reports():
                                 'date': report_date,
                                 'text': report_text
                             }
-                            st.rerun()
+                            st.experimental_rerun()
         
     # Edit report if selected
     if hasattr(st.session_state, 'edit_report'):
@@ -1180,7 +1189,7 @@ def view_my_reports():
                 del st.session_state.edit_report
                 st.rerun()
 
-# View My Tasks function - separate from profile management
+# View My Tasks function - completely separated from profile management
 def view_my_tasks():
     st.markdown('<h2 class="sub-header">My Tasks</h2>', unsafe_allow_html=True)
     
@@ -1230,6 +1239,7 @@ def view_my_tasks():
                 task_description = task[1]
                 due_date = task[2].strftime('%d %b, %Y') if task[2] else "No due date"
                 created_at = task[4].strftime('%d %b, %Y')
+                task_date_str = task[2].strftime('%Y%m%d') if task[2] else 'nodate'
                 
                 st.markdown(f'''
                 <div class="task-item">
@@ -1241,7 +1251,7 @@ def view_my_tasks():
                 </div>
                 ''', unsafe_allow_html=True)
                 
-                if st.button(f"Mark as Completed", key=f"complete_{task_id}"):
+                if st.button(f"Mark as Completed", key=f"employee_complete_{task_id}_{task_date_str}"):
                     with engine.connect() as conn:
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                         conn.commit()
@@ -1372,7 +1382,7 @@ def view_my_tasks():
             
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
-                st.rerun()
+                st.experimental_rerun()
     
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
@@ -1434,7 +1444,7 @@ def view_my_tasks():
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                         conn.commit()
                     st.success("Task marked as completed")
-                    st.rerun()
+                    st.experimental_rerun()
         
         # Display completed tasks
         if completed_tasks and status_filter != "Pending":
@@ -1566,7 +1576,7 @@ def edit_my_profile():
             
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
-                st.rerun()
+                st.experimental_rerun()
 
 # Main function
 def main():
