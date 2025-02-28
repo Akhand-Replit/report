@@ -1305,7 +1305,8 @@ def view_my_tasks():
     with col2:
         st.markdown(f"<p><strong>Username:</strong> {username}</p>", unsafe_allow_html=True)
         st.info("Username cannot be changed as it is used for login purposes.")
-    
+"""   
+#shuvo
     # Form for updating profile
     with st.form("update_profile_form"):
         st.subheader("Update Your Information")
@@ -1383,7 +1384,7 @@ def view_my_tasks():
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
                 st.rerun()
-    
+"""    
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
     status_filter = st.selectbox("Show", status_options)
