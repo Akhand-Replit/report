@@ -15,7 +15,7 @@ from reportlab.lib import colors
 
 # Page config
 st.set_page_config(
-    page_title="Akhand Office Report",
+    page_title="Employee Management System",
     page_icon="👥",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -172,34 +172,25 @@ def init_db():
         '''))
         conn.commit()
 
-# Check if admin exists
-def check_admin_exists():
-    with engine.connect() as conn:
-        result = conn.execute(text('''
-        SELECT COUNT(*) FROM employees
-        WHERE username = :username AND id = 1
-        '''), {'username': st.secrets.get("admin_username", "admin")})
-        count = result.fetchone()[0]
-    return count > 0
-
-# Create admin user if not exists
-def create_admin_user():
-    with engine.connect() as conn:
-        conn.execute(text('''
-        INSERT INTO employees (id, username, password, full_name, profile_pic_url, is_active)
-        VALUES (1, :username, :password, 'Administrator', 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y', TRUE)
-        ON CONFLICT (id) DO NOTHING
-        '''), {
-            'username': st.secrets.get("admin_username", "admin"),
-            'password': st.secrets.get("admin_password", "admin123")
-        })
-        conn.commit()
+# Admin authentication is handled directly through Streamlit secrets
+# No need to store admin credentials in the database
 
 # Authentication function
 def authenticate(username, password):
-    if username == st.secrets("admin_username") and password == st.secrets("admin_password"):
-        return {"id": 1, "username": username, "full_name": "Administrator", "is_admin": True, "profile_pic_url": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"}
+    # Check if credentials match admin in Streamlit secrets
+    admin_username = st.secrets.get("admin_username", "admin")
+    admin_password = st.secrets.get("admin_password", "admin123")
     
+    if username == admin_username and password == admin_password:
+        return {
+            "id": 0,  # Special ID for admin
+            "username": username, 
+            "full_name": "Administrator", 
+            "is_admin": True, 
+            "profile_pic_url": "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+        }
+    
+    # If not admin, check employee credentials in database
     with engine.connect() as conn:
         result = conn.execute(text('''
         SELECT id, username, full_name, profile_pic_url
@@ -246,7 +237,7 @@ def admin_dashboard():
     with col2:
         st.markdown('<div class="profile-container">', unsafe_allow_html=True)
         try:
-            st.image(st.session_state.user["profile_pic_url"], width=80, clamp=True, output_format="auto", channels="RGB", use_container_width=False)
+            st.image(st.session_state.user["profile_pic_url"], width=80, clamp=True, output_format="auto", channels="RGB", use_column_width=False)
         except:
             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=80)
         
@@ -414,7 +405,7 @@ def manage_employees():
                     
                     with col1:
                         try:
-                            st.image(employee[3], width=100, use_container_width=False)
+                            st.image(employee[3], width=100, use_column_width=False)
                         except:
                             st.image("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y", width=100)
                     
@@ -1277,10 +1268,6 @@ def main():
     if engine:
         # Initialize database tables
         init_db()
-        
-        # Ensure admin user exists
-        if not check_admin_exists():
-            create_admin_user()
         
         # Check if user is logged in
         if "user" not in st.session_state:
