@@ -69,6 +69,7 @@ st.markdown("""
     
     .login-container {
         max-width: 400px;
+        background-image: url("https://i.ibb.co/hhJNXjd/3bc2245c15dc.png");
         margin: 0 auto;
         padding: 2rem;
         background-color: #ffffff;
