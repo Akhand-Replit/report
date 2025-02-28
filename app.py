@@ -779,14 +779,14 @@ def manage_tasks():
                                 conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task marked as completed")
-                            st.experimental_rerun()
+                            st.rerun()
                     else:
                         if st.button(f"Reopen Task", key=f"reopen_{task_id}"):
                             with engine.connect() as conn:
                                 conn.execute(text('UPDATE tasks SET is_completed = FALSE WHERE id = :id'), {'id': task_id})
                                 conn.commit()
                             st.success("Task reopened")
-                            st.experimental_rerun()
+                            st.rerun()
                 
                 with col2:
                     if st.button(f"Delete Task", key=f"delete_{task_id}"):
@@ -794,7 +794,7 @@ def manage_tasks():
                             conn.execute(text('DELETE FROM tasks WHERE id = :id'), {'id': task_id})
                             conn.commit()
                         st.success("Task deleted")
-                        st.experimental_rerun()
+                        st.rerun()
     
     with tab2:
         # Form to assign new task
@@ -1147,7 +1147,7 @@ def view_my_reports():
                                 'date': report_date,
                                 'text': report_text
                             }
-                            st.experimental_rerun()
+                            st.rerun()
         
     # Edit report if selected
     if hasattr(st.session_state, 'edit_report'):
@@ -1382,7 +1382,7 @@ def view_my_tasks():
             
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
-                st.experimental_rerun()
+                st.rerun()
     
     # Task status filter
     status_options = ["All Tasks", "Pending", "Completed"]
@@ -1444,7 +1444,7 @@ def view_my_tasks():
                         conn.execute(text('UPDATE tasks SET is_completed = TRUE WHERE id = :id'), {'id': task_id})
                         conn.commit()
                     st.success("Task marked as completed")
-                    st.experimental_rerun()
+                    st.rerun()
         
         # Display completed tasks
         if completed_tasks and status_filter != "Pending":
@@ -1576,7 +1576,7 @@ def edit_my_profile():
             
             if updates_made:
                 time.sleep(1)  # Give the user time to read the success message
-                st.experimental_rerun()
+                st.rerun()
 
 # Main function
 def main():
