@@ -74,7 +74,7 @@ st.markdown("""
         background-repeat: no-repeat;
         background-position: center;
         margin: 0 auto;
-        padding: 1rem;
+        padding: 2.5rem;
     }
     
     .login-header {
